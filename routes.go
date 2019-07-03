@@ -8,4 +8,5 @@ func initializeRoutes() {
 	router = gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", showIndexPage)
+	router.GET("/article/view/:article_id", getArticle)
 }
