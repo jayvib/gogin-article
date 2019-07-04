@@ -3,7 +3,7 @@ package main
 import "errors"
 
 type article struct {
-	ID      int    `json:"id"`
+	ID      int    `json:"id" gorm:"primary_key"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
