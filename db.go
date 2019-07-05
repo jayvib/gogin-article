@@ -3,9 +3,9 @@ package main
 import "errors"
 
 type DB interface {
-	getAllArticles() ([]*article, error)
-	getArticle(id int) (*article, error)
-	putArtile(*article) error
+	getAllArticles() ([]Article, error)
+	getArticle(id int) (Article, error)
+	putArticle(*Article) error
 }
 
 // A Data store using protocol buffer

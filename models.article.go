@@ -1,9 +1,19 @@
 package main
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/jinzhu/gorm"
+)
 
 type article struct {
-	ID      int    `json:"id" gorm:"primary_key"`
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+type Article struct {
+	gorm.Model
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
