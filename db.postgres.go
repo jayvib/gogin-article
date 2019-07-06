@@ -32,7 +32,11 @@ func (pdb *postgresDB) getAllArticles() ([]*Article, error) {
 }
 
 func (pdb *postgresDB) getArticle(a *Article) (*Article, error) {
-	pdb.db.First(a)
+	if err := pdb.db.First(a).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, ItemNotFound.Newf("article %v not found", a)
+		}
+	}
 	return a, nil
 }
 

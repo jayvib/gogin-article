@@ -83,4 +83,17 @@ func TestDBGetArticle(t *testing.T) {
 		t.Error("Title from the original is not the same with the title of the article result")
 	}
 
+	notexistArticle := &Article{Model: gorm.Model{ID: 1000}}
+	_, err = pdb.getArticle(notexistArticle)
+	if err == nil {
+		t.Error("expecting an error but nothing return")
+	}
+
+	if customErr, ok := err.(customError); !ok {
+		t.Error("expecting an customError type but it doesn't return the correct on")
+	} else {
+		if customErr.errorType != ItemNotFound {
+			t.Errorf("expecting an error type 'ItemNotFound' but got %v", customErr.errorType)
+		}
+	}
 }
