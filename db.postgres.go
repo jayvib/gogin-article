@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/jayvib/gogin-article/errors"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
@@ -27,21 +28,25 @@ type postgresDB struct {
 
 func (pdb *postgresDB) getAllArticles() ([]*Article, error) {
 	var articles []*Article
-	pdb.db.Find(&articles)
+	if err := pdb.db.Find(&articles).Error; err != nil {
+		return nil, errors.Wrap(err, "error while getting all the articles")
+	}
 	return articles, nil
 }
 
 func (pdb *postgresDB) getArticle(a *Article) (*Article, error) {
 	if err := pdb.db.First(a).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, ItemNotFound.Newf("article %v not found", a)
+			return nil, errors.ItemNotFound.Newf("article %v not found", a)
 		}
 	}
 	return a, nil
 }
 
 func (pdb *postgresDB) putArticle(a *Article) error {
-	pdb.db.Create(a)
+	if err := pdb.db.Create(a).Error; err != nil {
+		return errors.Wrap(err, "error while putting the article")
+	}
 	return nil
 }
 
@@ -57,7 +62,7 @@ func setupGormDB(isDebug bool) (*gorm.DB, error) {
 		}
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "something wrong while opening the database")
 	}
 	return _db, nil
 }

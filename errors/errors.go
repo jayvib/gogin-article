@@ -1,4 +1,4 @@
-package main
+package errors
 
 import (
 	"fmt"
@@ -70,6 +70,21 @@ func Newf(msg string, args ...interface{}) error {
 
 func Wrapf(err error, msg string, args ...interface{}) error {
 	wrappedErr := errors.Wrapf(err, msg, args...)
+	if customErr, ok := err.(customError); ok {
+		return customError{
+			errorType:     customErr.errorType,
+			originalError: wrappedErr,
+			contextInfo:   customErr.contextInfo,
+		}
+	}
+	return customError{
+		errorType:     NoType,
+		originalError: wrappedErr,
+	}
+}
+
+func Wrap(err error, msg string) error {
+	wrappedErr := errors.Wrap(err, msg)
 	if customErr, ok := err.(customError); ok {
 		return customError{
 			errorType:     customErr.errorType,
