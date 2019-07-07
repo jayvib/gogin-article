@@ -22,6 +22,20 @@ var (
 	_db  *gorm.DB
 )
 
+func NewPostgresDB(db *gorm.DB) *postgresDB {
+	return &postgresDB{
+		db: db,
+	}
+}
+
+func NewPostgresDBWithDefaultDB() (*postgresDB, error) {
+	dbTemp, err := setupGormDB(false)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while setting up gorm")
+	}
+	return NewPostgresDB(dbTemp), nil
+}
+
 type postgresDB struct {
 	db *gorm.DB
 }

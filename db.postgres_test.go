@@ -40,11 +40,20 @@ func TestDBPutArticle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	pdb := &postgresDB{db: db}
+	t.Run("Error", func(t *testing.T) {
+		db.DropTableIfExists(&Article{})
+		err = pdb.putArticle(&Article{Title: "error"})
+		if err == nil {
+			t.Error("expecting an error but nothing got")
+		}
+	})
 	err = initMigrationWithDefaultDB()
 	if err != nil {
 		t.Fatal(err)
 	}
-	pdb := &postgresDB{db: db}
+
 	article1 := &Article{
 		Title:   "test1",
 		Content: "this is a testing 2",
@@ -114,4 +123,47 @@ func TestInitMigration(t *testing.T) {
 		t.Fatal(err)
 	}
 
+}
+
+func TestDBGetAllArticles(t *testing.T) {
+	pdb, err := NewPostgresDBWithDefaultDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.Run("Error", func(t *testing.T) {
+		pdb.db.DropTableIfExists(&Article{}) // just to simulate error to test the error block
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = pdb.getAllArticles()
+		if err == nil {
+			t.Error("expecting an error but nothing receive")
+		}
+	})
+
+	t.Run("With Items", func(t *testing.T) {
+		err = initMigrationWithDefaultDB()
+		if err != nil {
+			t.Fatal(err)
+		}
+		article1 := &Article{
+			Title:   "test1",
+			Content: "this is a testing 2",
+		}
+		article2 := &Article{
+			Title:   "test2",
+			Content: "this is a testing 2",
+		}
+		pdb.putArticle(article1)
+		pdb.putArticle(article2)
+
+		articles, err := pdb.getAllArticles()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(articles) != 2 {
+			t.Error("after adding 2 article, the number of articles return from .getAllArticles must be 2")
+		}
+		t.Log(len(articles))
+	})
 }
