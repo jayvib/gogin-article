@@ -7,6 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type handlers struct {
+	db DB
+}
+
+func (h *handlers) showIndexPage(c *gin.Context) {
+	articles, _ := h.db.getAllArticles()
+	render(c, gin.H{
+		"title":   "Home Page",
+		"payload": articles,
+	}, "index.html")
+}
+
 func showIndexPage(c *gin.Context) {
 	articles := getAllArticles()
 	render(c, gin.H{

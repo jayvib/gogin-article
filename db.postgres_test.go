@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
 	"reflect"
 	"testing"
 
+	"github.com/jayvib/gogin-article/errors"
 	"github.com/jinzhu/gorm"
 )
 
@@ -38,19 +40,27 @@ func TestDBPutArticle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	initMigrationWithDefaultDB()
+	err = initMigrationWithDefaultDB()
+	if err != nil {
+		t.Fatal(err)
+	}
 	pdb := &postgresDB{db: db}
 	article1 := &Article{
 		Title:   "test1",
 		Content: "this is a testing 2",
 	}
-	pdb.putArticle(article1)
-
+	err = pdb.putArticle(article1)
+	if err != nil {
+		t.Fatal(err)
+	}
 	t.Log(article1.ID)
 	t.Log(article1.CreatedAt)
 
 	var articles []*Article
-	articles, _ = pdb.getAllArticles()
+	articles, err = pdb.getAllArticles()
+	if err != nil {
+		log.Fatal(err)
+	}
 	if len(articles) != 1 {
 		t.Error("after putting 1 item successfully, there should be 1 article in the table")
 	}
@@ -89,11 +99,19 @@ func TestDBGetArticle(t *testing.T) {
 		t.Error("expecting an error but nothing return")
 	}
 
-	if customErr, ok := err.(customError); !ok {
+	if !errors.IsCustomError(err) {
 		t.Error("expecting an customError type but it doesn't return the correct on")
 	} else {
-		if customErr.errorType != ItemNotFound {
-			t.Errorf("expecting an error type 'ItemNotFound' but got %v", customErr.errorType)
+		if et := errors.GetErrorType(err); et != errors.ItemNotFound {
+			t.Errorf("expecting an error type 'ItemNotFound' but got %v", et)
 		}
 	}
+}
+
+func TestInitMigration(t *testing.T) {
+	err := initMigrationWithDefaultDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 }

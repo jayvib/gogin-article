@@ -127,3 +127,17 @@ func GetErrorContext(err error) map[string]string {
 	}
 	return nil
 }
+
+func GetErrorType(err error) ErrorType {
+	if customErr, ok := err.(customError); ok {
+		return customErr.errorType
+	}
+	return NoType
+}
+
+func IsCustomError(err error) bool {
+	if _, ok := err.(customError); ok {
+		return true
+	}
+	return false
+}
